@@ -260,15 +260,9 @@ composer test
 vendor/bin/phpunit tests/Unit/
 ```
 
-**Security Note**: Never commit real API tokens to source control. Integration tests will automatically skip if no token is provided.
-
 ## License
 
 This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For support, please visit the [Markup.ai documentation](https://docs.markup.ai) or contact support@markup.ai.
 
 ## Contributing
 
