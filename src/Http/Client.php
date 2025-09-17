@@ -108,7 +108,7 @@ class Client
             ->withHeader('Authorization', $this->config->getAuthorizationHeader())
             ->withHeader('Content-Type', 'application/json')
             ->withHeader('Accept', 'application/json')
-            ->withHeader('User-Agent', 'MarkupAI-PHP-SDK/1.0.0');
+            ->withHeader('User-Agent', 'MarkupAI-PHP-SDK/1.0.1');
     }
 
     private function addFileUploadHeaders(RequestInterface $request): RequestInterface
@@ -116,7 +116,7 @@ class Client
         return $request
             ->withHeader('Authorization', $this->config->getAuthorizationHeader())
             ->withHeader('Accept', 'application/json')
-            ->withHeader('User-Agent', 'MarkupAI-PHP-SDK/1.0.0');
+            ->withHeader('User-Agent', 'MarkupAI-PHP-SDK/1.0.1');
     }
 
     private function addJsonBody(RequestInterface $request, array $data): RequestInterface
