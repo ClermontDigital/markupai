@@ -1,6 +1,6 @@
 {
     "name": "markupai/php-sdk",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "PHP SDK for Markup.ai content governance platform",
     "type": "library",
     "license": "Apache-2.0",
