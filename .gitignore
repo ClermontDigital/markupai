@@ -96,4 +96,8 @@ pids
 
 # Documentation build
 /docs/_build/
-test_endpoints.php
+
+# Test files (debugging and verification)
+test_*.php
+debug_*.php
+final_*.php

@@ -38,7 +38,7 @@ class StyleRewritesTest extends TestCase
         $this->httpClient
             ->expects($this->once())
             ->method('post')
-            ->with('style-rewrites', $requestData)
+            ->with('style/rewrites', $requestData)
             ->willReturn($responseData);
 
         $result = $this->styleRewrites->create($requestData);
@@ -61,7 +61,7 @@ class StyleRewritesTest extends TestCase
         $this->httpClient
             ->expects($this->once())
             ->method('get')
-            ->with("style-rewrites/{$id}")
+            ->with("style/rewrites/{$id}")
             ->willReturn($responseData);
 
         $result = $this->styleRewrites->get($id);

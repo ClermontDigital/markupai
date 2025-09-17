@@ -14,13 +14,13 @@ class StyleRewrite
 
     private ?string $rewrittenContent;
 
-    private DateTimeImmutable $createdAt;
+    private ?DateTimeImmutable $createdAt;
 
     public function __construct(
         string $id,
         string $status,
         ?string $rewrittenContent,
-        DateTimeImmutable $createdAt
+        ?DateTimeImmutable $createdAt
     ) {
         $this->id = $id;
         $this->status = $status;
@@ -30,11 +30,19 @@ class StyleRewrite
 
     public static function fromArray(array $data): self
     {
+        // Handle both 'id' and 'workflow_id' from API responses
+        $id = $data['id'] ?? $data['workflow_id'];
+
+        $createdAt = null;
+        if (isset($data['created_at'])) {
+            $createdAt = new DateTimeImmutable($data['created_at']);
+        }
+
         return new self(
-            $data['id'],
+            $id,
             $data['status'],
             $data['rewritten_content'] ?? null,
-            new DateTimeImmutable($data['created_at'])
+            $createdAt
         );
     }
 
@@ -53,7 +61,7 @@ class StyleRewrite
         return $this->rewrittenContent;
     }
 
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -69,7 +77,7 @@ class StyleRewrite
             'id' => $this->id,
             'status' => $this->status,
             'rewritten_content' => $this->rewrittenContent,
-            'created_at' => $this->createdAt->format('c'),
+            'created_at' => $this->createdAt?->format('c'),
         ];
     }
 }

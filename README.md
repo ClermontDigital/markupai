@@ -57,23 +57,25 @@ $client = new MarkupAiClient('your-api-token');
 // List all style guides
 $styleGuides = $client->styleGuides()->list();
 
-// Create a style check
-$styleCheck = $client->styleChecks()->create([
-    'content' => 'Your content to check',
-    'style_guide_id' => 'your-style-guide-id'
-]);
+// Create a style check with file upload
+$styleCheck = $client->styleChecks()->createWithFile([
+    'dialect' => 'american_english',
+    'style_guide' => 'your-style-guide-id'
+], '/path/to/your/document.txt');
 
-// Get style suggestions
-$suggestions = $client->styleSuggestions()->create([
-    'content' => 'Your content to improve',
-    'style_guide_id' => 'your-style-guide-id'
-]);
+// Get style suggestions with file upload
+$suggestions = $client->styleSuggestions()->createWithFile([
+    'dialect' => 'american_english',
+    'style_guide' => 'your-style-guide-id',
+    'tone' => 'professional'
+], '/path/to/your/document.txt');
 
-// Generate a style rewrite
-$rewrite = $client->styleRewrites()->create([
-    'content' => 'Your content to rewrite',
-    'style_guide_id' => 'your-style-guide-id'
-]);
+// Generate a style rewrite with file upload
+$rewrite = $client->styleRewrites()->createWithFile([
+    'dialect' => 'american_english',
+    'style_guide' => 'your-style-guide-id',
+    'tone' => 'professional'
+], '/path/to/your/document.txt');
 ```
 
 ## API Reference
@@ -105,11 +107,11 @@ $client->styleGuides()->delete('style-guide-id');
 ### Style Checks
 
 ```php
-// Create a style check
-$styleCheck = $client->styleChecks()->create([
-    'content' => 'Content to validate',
-    'style_guide_id' => 'your-style-guide-id'
-]);
+// Create a style check with file upload (required)
+$styleCheck = $client->styleChecks()->createWithFile([
+    'dialect' => 'american_english',
+    'style_guide' => 'your-style-guide-id'
+], '/path/to/document.txt');
 
 // Get style check results
 $styleCheck = $client->styleChecks()->get('style-check-id');
@@ -117,17 +119,21 @@ $styleCheck = $client->styleChecks()->get('style-check-id');
 // Check if completed
 if ($styleCheck->isCompleted()) {
     $results = $styleCheck->getResults();
+    // Access issues and scores
+    $issues = $results['original']['issues'] ?? [];
+    $qualityScore = $results['original']['scores']['quality']['score'] ?? null;
 }
 ```
 
 ### Style Suggestions
 
 ```php
-// Create style suggestions
-$suggestions = $client->styleSuggestions()->create([
-    'content' => 'Content to improve',
-    'style_guide_id' => 'your-style-guide-id'
-]);
+// Create style suggestions with file upload
+$suggestions = $client->styleSuggestions()->createWithFile([
+    'dialect' => 'american_english',
+    'style_guide' => 'your-style-guide-id',
+    'tone' => 'professional'
+], '/path/to/document.txt');
 
 // Get suggestions
 $suggestions = $client->styleSuggestions()->get('suggestion-id');
@@ -140,11 +146,12 @@ if ($suggestions->isCompleted()) {
 ### Style Rewrites
 
 ```php
-// Create a style rewrite
-$rewrite = $client->styleRewrites()->create([
-    'content' => 'Content to rewrite',
-    'style_guide_id' => 'your-style-guide-id'
-]);
+// Create a style rewrite with file upload
+$rewrite = $client->styleRewrites()->createWithFile([
+    'dialect' => 'american_english',
+    'style_guide' => 'your-style-guide-id',
+    'tone' => 'professional'
+], '/path/to/document.txt');
 
 // Get rewritten content
 $rewrite = $client->styleRewrites()->get('rewrite-id');

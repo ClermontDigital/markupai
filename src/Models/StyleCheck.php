@@ -14,13 +14,13 @@ class StyleCheck
 
     private ?array $results;
 
-    private DateTimeImmutable $createdAt;
+    private ?DateTimeImmutable $createdAt;
 
     public function __construct(
         string $id,
         string $status,
         ?array $results,
-        DateTimeImmutable $createdAt
+        ?DateTimeImmutable $createdAt
     ) {
         $this->id = $id;
         $this->status = $status;
@@ -30,11 +30,40 @@ class StyleCheck
 
     public static function fromArray(array $data): self
     {
+        // Handle different response structures from API
+        if (isset($data['workflow'])) {
+            // GET response has nested workflow structure
+            $workflow = $data['workflow'];
+            $id = $workflow['id'];
+            $status = $workflow['status'];
+
+            // For completed workflows, results are in original, config, etc.
+            $results = null;
+            if ($status === 'completed' && isset($data['original'])) {
+                $results = [
+                    'original' => $data['original'],
+                    'config' => $data['config'] ?? null
+                ];
+            }
+        } else {
+            // POST response has flat structure
+            $id = $data['id'] ?? $data['workflow_id'];
+            $status = $data['status'];
+            $results = $data['results'] ?? null;
+        }
+
+        $createdAt = null;
+        if (isset($data['created_at'])) {
+            $createdAt = new DateTimeImmutable($data['created_at']);
+        } elseif (isset($data['workflow']['generated_at'])) {
+            $createdAt = new DateTimeImmutable($data['workflow']['generated_at']);
+        }
+
         return new self(
-            $data['id'],
-            $data['status'],
-            $data['results'] ?? null,
-            new DateTimeImmutable($data['created_at'])
+            $id,
+            $status,
+            $results,
+            $createdAt
         );
     }
 
@@ -53,7 +82,7 @@ class StyleCheck
         return $this->results;
     }
 
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -69,7 +98,7 @@ class StyleCheck
             'id' => $this->id,
             'status' => $this->status,
             'results' => $this->results,
-            'created_at' => $this->createdAt->format('c'),
+            'created_at' => $this->createdAt?->format('c'),
         ];
     }
 }

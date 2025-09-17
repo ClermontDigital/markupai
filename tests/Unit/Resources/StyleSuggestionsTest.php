@@ -37,7 +37,7 @@ class StyleSuggestionsTest extends TestCase
         $this->httpClient
             ->expects($this->once())
             ->method('post')
-            ->with('style-suggestions', $requestData)
+            ->with('style/suggestions', $requestData)
             ->willReturn($responseData);
 
         $result = $this->styleSuggestions->create($requestData);
@@ -60,7 +60,7 @@ class StyleSuggestionsTest extends TestCase
         $this->httpClient
             ->expects($this->once())
             ->method('get')
-            ->with("style-suggestions/{$id}")
+            ->with("style/suggestions/{$id}")
             ->willReturn($responseData);
 
         $result = $this->styleSuggestions->get($id);

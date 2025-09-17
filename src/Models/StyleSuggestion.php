@@ -14,13 +14,13 @@ class StyleSuggestion
 
     private ?array $suggestions;
 
-    private DateTimeImmutable $createdAt;
+    private ?DateTimeImmutable $createdAt;
 
     public function __construct(
         string $id,
         string $status,
         ?array $suggestions,
-        DateTimeImmutable $createdAt
+        ?DateTimeImmutable $createdAt
     ) {
         $this->id = $id;
         $this->status = $status;
@@ -30,11 +30,19 @@ class StyleSuggestion
 
     public static function fromArray(array $data): self
     {
+        // Handle both 'id' and 'workflow_id' from API responses
+        $id = $data['id'] ?? $data['workflow_id'];
+
+        $createdAt = null;
+        if (isset($data['created_at'])) {
+            $createdAt = new DateTimeImmutable($data['created_at']);
+        }
+
         return new self(
-            $data['id'],
+            $id,
             $data['status'],
             $data['suggestions'] ?? null,
-            new DateTimeImmutable($data['created_at'])
+            $createdAt
         );
     }
 
@@ -53,7 +61,7 @@ class StyleSuggestion
         return $this->suggestions;
     }
 
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -69,7 +77,7 @@ class StyleSuggestion
             'id' => $this->id,
             'status' => $this->status,
             'suggestions' => $this->suggestions,
-            'created_at' => $this->createdAt->format('c'),
+            'created_at' => $this->createdAt?->format('c'),
         ];
     }
 }

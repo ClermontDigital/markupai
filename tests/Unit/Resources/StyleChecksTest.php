@@ -27,24 +27,11 @@ class StyleChecksTest extends TestCase
             'content' => 'Test content',
             'style_guide_id' => 'guide-123',
         ];
-        $responseData = [
-            'id' => '123e4567-e89b-12d3-a456-426614174000',
-            'status' => 'running',
-            'results' => null,
-            'created_at' => '2025-01-20T14:30:00+00:00',
-        ];
 
-        $this->httpClient
-            ->expects($this->once())
-            ->method('post')
-            ->with('style-checks', $requestData)
-            ->willReturn($responseData);
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage('Style checks require file upload. Use createWithFile() method instead.');
 
-        $result = $this->styleChecks->create($requestData);
-
-        $this->assertInstanceOf(StyleCheck::class, $result);
-        $this->assertEquals('123e4567-e89b-12d3-a456-426614174000', $result->getId());
-        $this->assertEquals('running', $result->getStatus());
+        $this->styleChecks->create($requestData);
     }
 
     public function testGet(): void
@@ -60,7 +47,7 @@ class StyleChecksTest extends TestCase
         $this->httpClient
             ->expects($this->once())
             ->method('get')
-            ->with("style-checks/{$id}")
+            ->with("style/checks/{$id}")
             ->willReturn($responseData);
 
         $result = $this->styleChecks->get($id);
