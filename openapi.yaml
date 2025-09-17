@@ -1,0 +1,813 @@
+openapi: 3.0.3
+info:
+  title: Markup.ai API
+  description: |
+    The Markup.ai API provides content governance tools that help organizations enforce writing standards and brand guidelines automatically.
+
+    Key capabilities include:
+    - Style guide management and enforcement
+    - Content validation against style rules
+    - Automated style suggestions and improvements
+    - Content rewriting for compliance
+
+    For more information, visit [docs.markup.ai](https://docs.markup.ai)
+  version: 1.0.0
+  contact:
+    name: Markup.ai Support
+    email: support@markup.ai
+    url: https://markup.ai
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: https://api.markup.ai/v1
+    description: Production server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /style-guides:
+    get:
+      summary: List Style Guides
+      description: Retrieve all style guides associated with your organization
+      operationId: listStyleGuides
+      tags:
+        - Style Guides
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StyleGuide'
+              examples:
+                success:
+                  summary: List of style guides
+                  value:
+                    - id: "123e4567-e89b-12d3-a456-426614174000"
+                      name: "Custom Marketing Guide"
+                      created_at: "2025-01-20T14:30:00Z"
+                      created_by: "user123"
+                      status: "completed"
+                      summary: "Marketing style guide for brand consistency"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    post:
+      summary: Create Style Guide
+      description: Create a new style guide for your organization
+      operationId: createStyleGuide
+      tags:
+        - Style Guides
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStyleGuideRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the style guide
+                description:
+                  type: string
+                  description: Description of the style guide
+                file_upload:
+                  type: string
+                  format: binary
+                  description: Style guide document (PDF or text file)
+      responses:
+        '201':
+          description: Style guide created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleGuide'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /style-guides/{id}:
+    get:
+      summary: Get Style Guide
+      description: Retrieve a specific style guide by ID
+      operationId: getStyleGuide
+      tags:
+        - Style Guides
+      parameters:
+        - $ref: '#/components/parameters/StyleGuideId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleGuide'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    patch:
+      summary: Update Style Guide
+      description: Update an existing style guide
+      operationId: updateStyleGuide
+      tags:
+        - Style Guides
+      parameters:
+        - $ref: '#/components/parameters/StyleGuideId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStyleGuideRequest'
+      responses:
+        '200':
+          description: Style guide updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleGuide'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+    delete:
+      summary: Delete Style Guide
+      description: Delete a style guide
+      operationId: deleteStyleGuide
+      tags:
+        - Style Guides
+      parameters:
+        - $ref: '#/components/parameters/StyleGuideId'
+      responses:
+        '204':
+          description: Style guide deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /style-checks:
+    post:
+      summary: Create Style Check
+      description: Create a new style check to validate content against a style guide
+      operationId: createStyleCheck
+      tags:
+        - Style Checks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStyleCheckRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  description: Content to check
+                style_guide_id:
+                  type: string
+                  format: uuid
+                  description: ID of the style guide to check against
+                file_upload:
+                  type: string
+                  format: binary
+                  description: File to check
+      responses:
+        '201':
+          description: Style check created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleCheck'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /style-checks/{id}:
+    get:
+      summary: Get Style Check
+      description: Retrieve the results of a style check
+      operationId: getStyleCheck
+      tags:
+        - Style Checks
+      parameters:
+        - $ref: '#/components/parameters/StyleCheckId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleCheck'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /style-suggestions:
+    post:
+      summary: Create Style Suggestion
+      description: Create style suggestions for improving content
+      operationId: createStyleSuggestion
+      tags:
+        - Style Suggestions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStyleSuggestionRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  description: Content to get suggestions for
+                style_guide_id:
+                  type: string
+                  format: uuid
+                  description: ID of the style guide to use
+                file_upload:
+                  type: string
+                  format: binary
+                  description: File to get suggestions for
+      responses:
+        '201':
+          description: Style suggestion created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleSuggestion'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /style-suggestions/{id}:
+    get:
+      summary: Get Style Suggestion
+      description: Retrieve style suggestions
+      operationId: getStyleSuggestion
+      tags:
+        - Style Suggestions
+      parameters:
+        - $ref: '#/components/parameters/StyleSuggestionId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleSuggestion'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /style-rewrites:
+    post:
+      summary: Create Style Rewrite
+      description: Create an automatic rewrite of content to match style guidelines
+      operationId: createStyleRewrite
+      tags:
+        - Style Rewrites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStyleRewriteRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  description: Content to rewrite
+                style_guide_id:
+                  type: string
+                  format: uuid
+                  description: ID of the style guide to use
+                dialect:
+                  type: string
+                  enum: [american_english, british_english]
+                  description: English dialect preference
+                tone:
+                  type: string
+                  enum: [professional, casual, formal, informal]
+                  description: Tone preference
+                file_upload:
+                  type: string
+                  format: binary
+                  description: File to rewrite
+      responses:
+        '201':
+          description: Style rewrite created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleRewrite'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /style-rewrites/{id}:
+    get:
+      summary: Get Style Rewrite
+      description: Retrieve rewritten content
+      operationId: getStyleRewrite
+      tags:
+        - Style Rewrites
+      parameters:
+        - $ref: '#/components/parameters/StyleRewriteId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleRewrite'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: API token for authentication
+
+  parameters:
+    StyleGuideId:
+      name: id
+      in: path
+      required: true
+      description: Unique identifier for the style guide
+      schema:
+        type: string
+        format: uuid
+        example: "123e4567-e89b-12d3-a456-426614174000"
+
+    StyleCheckId:
+      name: id
+      in: path
+      required: true
+      description: Unique identifier for the style check
+      schema:
+        type: string
+        format: uuid
+        example: "123e4567-e89b-12d3-a456-426614174000"
+
+    StyleSuggestionId:
+      name: id
+      in: path
+      required: true
+      description: Unique identifier for the style suggestion
+      schema:
+        type: string
+        format: uuid
+        example: "123e4567-e89b-12d3-a456-426614174000"
+
+    StyleRewriteId:
+      name: id
+      in: path
+      required: true
+      description: Unique identifier for the style rewrite
+      schema:
+        type: string
+        format: uuid
+        example: "123e4567-e89b-12d3-a456-426614174000"
+
+  schemas:
+    StyleGuide:
+      type: object
+      required:
+        - id
+        - name
+        - created_at
+        - created_by
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the style guide
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          description: Name of the style guide
+          example: "Custom Marketing Guide"
+        created_at:
+          type: string
+          format: date-time
+          description: When the style guide was created
+          example: "2025-01-20T14:30:00Z"
+        created_by:
+          type: string
+          description: User who created the style guide
+          example: "user123"
+        status:
+          type: string
+          enum: [running, completed, failed, not_found]
+          description: Current status of the style guide
+          example: "completed"
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the style guide was last updated
+          example: "2025-01-20T15:30:00Z"
+        updated_by:
+          type: string
+          nullable: true
+          description: User who last updated the style guide
+          example: "user456"
+        summary:
+          type: string
+          description: Summary of the style guide
+          example: "Marketing style guide for brand consistency"
+
+    StyleCheck:
+      type: object
+      required:
+        - id
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the style check
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        status:
+          type: string
+          enum: [running, completed, failed]
+          description: Current status of the style check
+          example: "completed"
+        created_at:
+          type: string
+          format: date-time
+          description: When the style check was created
+          example: "2025-01-20T14:30:00Z"
+        results:
+          type: object
+          nullable: true
+          description: Style check results (available when status is completed)
+          properties:
+            score:
+              type: number
+              format: float
+              minimum: 0
+              maximum: 100
+              description: Overall style score
+            issues:
+              type: array
+              items:
+                $ref: '#/components/schemas/StyleIssue'
+            suggestions_count:
+              type: integer
+              description: Number of suggestions generated
+
+    StyleSuggestion:
+      type: object
+      required:
+        - id
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the style suggestion
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        status:
+          type: string
+          enum: [running, completed, failed]
+          description: Current status of the style suggestion
+          example: "completed"
+        created_at:
+          type: string
+          format: date-time
+          description: When the style suggestion was created
+          example: "2025-01-20T14:30:00Z"
+        suggestions:
+          type: array
+          nullable: true
+          description: Style suggestions (available when status is completed)
+          items:
+            $ref: '#/components/schemas/Suggestion'
+
+    StyleRewrite:
+      type: object
+      required:
+        - id
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the style rewrite
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        status:
+          type: string
+          enum: [running, completed, failed]
+          description: Current status of the style rewrite
+          example: "completed"
+        created_at:
+          type: string
+          format: date-time
+          description: When the style rewrite was created
+          example: "2025-01-20T14:30:00Z"
+        rewritten_content:
+          type: string
+          nullable: true
+          description: Rewritten content (available when status is completed)
+          example: "This is the rewritten content that follows the style guide."
+
+    StyleIssue:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [grammar, style, terminology, tone, clarity]
+          description: Type of style issue
+        severity:
+          type: string
+          enum: [low, medium, high]
+          description: Severity of the issue
+        message:
+          type: string
+          description: Description of the issue
+        location:
+          type: object
+          properties:
+            start:
+              type: integer
+              description: Start position in the text
+            end:
+              type: integer
+              description: End position in the text
+        suggested_fix:
+          type: string
+          nullable: true
+          description: Suggested fix for the issue
+
+    Suggestion:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [rewrite, replace, remove, rephrase]
+          description: Type of suggestion
+        original_text:
+          type: string
+          description: Original text that needs improvement
+        suggested_text:
+          type: string
+          description: Suggested replacement text
+        reason:
+          type: string
+          description: Explanation for the suggestion
+        location:
+          type: object
+          properties:
+            start:
+              type: integer
+              description: Start position in the text
+            end:
+              type: integer
+              description: End position in the text
+
+    CreateStyleGuideRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name of the style guide
+          example: "Brand Writing Guide"
+        description:
+          type: string
+          description: Description of the style guide
+          example: "Comprehensive writing guidelines for our brand"
+
+    UpdateStyleGuideRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Updated name of the style guide
+        description:
+          type: string
+          description: Updated description of the style guide
+
+    CreateStyleCheckRequest:
+      type: object
+      oneOf:
+        - required: [content, style_guide_id]
+        - required: [style_guide_id]
+      properties:
+        content:
+          type: string
+          description: Content to check against the style guide
+          example: "This is the content that needs to be checked for style compliance."
+        style_guide_id:
+          type: string
+          format: uuid
+          description: ID of the style guide to check against
+          example: "123e4567-e89b-12d3-a456-426614174000"
+
+    CreateStyleSuggestionRequest:
+      type: object
+      oneOf:
+        - required: [content, style_guide_id]
+        - required: [style_guide_id]
+      properties:
+        content:
+          type: string
+          description: Content to get style suggestions for
+          example: "This content could be improved with better style."
+        style_guide_id:
+          type: string
+          format: uuid
+          description: ID of the style guide to use for suggestions
+          example: "123e4567-e89b-12d3-a456-426614174000"
+
+    CreateStyleRewriteRequest:
+      type: object
+      oneOf:
+        - required: [content, style_guide_id]
+        - required: [style_guide_id]
+      properties:
+        content:
+          type: string
+          description: Content to rewrite according to style guide
+          example: "This content needs to be rewritten to match our style guide."
+        style_guide_id:
+          type: string
+          format: uuid
+          description: ID of the style guide to use for rewriting
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        dialect:
+          type: string
+          enum: [american_english, british_english]
+          description: Preferred English dialect
+          example: "american_english"
+        tone:
+          type: string
+          enum: [professional, casual, formal, informal]
+          description: Desired tone for the rewrite
+          example: "professional"
+
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: "The requested resource was not found"
+        code:
+          type: string
+          description: Error code
+          example: "RESOURCE_NOT_FOUND"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "Invalid request format"
+            code: "BAD_REQUEST"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "Invalid or missing authentication token"
+            code: "UNAUTHORIZED"
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "Insufficient permissions to access this resource"
+            code: "FORBIDDEN"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "The requested resource was not found"
+            code: "NOT_FOUND"
+
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "Validation failed for one or more fields"
+            code: "VALIDATION_ERROR"
+            details:
+              fields:
+                - field: "name"
+                  message: "Name is required"
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: "An unexpected error occurred"
+            code: "INTERNAL_SERVER_ERROR"
+
+tags:
+  - name: Style Guides
+    description: Manage style guides for content governance
+  - name: Style Checks
+    description: Validate content against style guidelines
+  - name: Style Suggestions
+    description: Get improvement suggestions for content
+  - name: Style Rewrites
+    description: Automatically rewrite content to match style guidelines

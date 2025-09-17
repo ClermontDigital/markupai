@@ -1,0 +1,12 @@
+parameters:
+    level: 8
+    paths:
+        - src
+        - tests
+    ignoreErrors:
+        - identifier: missingType.iterableValue
+        # Laravel service provider issues - acceptable for Laravel integration
+        - '#Cannot access offset .config. on Illuminate\\Contracts\\Container\\Container#'
+        - '#Function config_path not found#'
+        # Mock-related issues in tests
+        - '#Call to an undefined method MarkupAI\\Http\\Client::expects\(\)#'

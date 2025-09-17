@@ -1,0 +1,97 @@
+# Claude Code
+.claude/
+CLAUDE.md
+
+# Dependencies
+/vendor/
+node_modules/
+
+# Composer
+composer.lock
+
+# PHPUnit
+/coverage/
+.phpunit.result.cache
+/phpunit.xml.cache
+
+# PHPStan
+.phpstan.cache
+/phpstan.neon.dist
+
+# PHP CS Fixer
+.php-cs-fixer.cache
+.php-cs-fixer.dist.php
+
+# Psalm
+.psalm.cache
+psalm.xml
+
+# IDE Files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.buildpath
+.settings/
+*.sublime-*
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Cache
+.php-cs-fixer.cache
+.phpstan.cache
+.cache/
+
+# Build artifacts
+/build/
+/dist/
+*.tar.gz
+*.tgz
+
+# Environment
+.env
+.env.local
+.env.testing
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+/tmp/
+/temp/
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Git
+*.orig
+*.rej
+
+# Documentation build
+/docs/_build/
