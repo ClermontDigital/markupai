@@ -10,6 +10,7 @@ use MarkupAI\Models\StyleCheck;
 use MarkupAI\Models\StyleSuggestion;
 use MarkupAI\Models\StyleRewrite;
 use MarkupAI\Exceptions\AuthenticationException;
+use MarkupAI\Exceptions\NotFoundException;
 use MarkupAI\Exceptions\ValidationException;
 use PHPUnit\Framework\TestCase;
 
@@ -29,12 +30,10 @@ class MarkupAiIntegrationTest extends TestCase
         $this->client = new MarkupAiClient($apiToken);
     }
 
-    private function getApiToken(): string
+    private function getApiToken(): ?string
     {
         // Try multiple sources for the API token
-        return $_ENV['MARKUPAI_API_TOKEN'] ??
-               getenv('MARKUPAI_API_TOKEN') ?:
-               'mat_r3KWmbzVbVPW50GKQMa9GppNrrnf';
+        return $_ENV['MARKUPAI_API_TOKEN'] ?? getenv('MARKUPAI_API_TOKEN') ?: null;
     }
 
     public function testAuthenticationWithValidToken(): void
@@ -206,7 +205,8 @@ class MarkupAiIntegrationTest extends TestCase
 
     public function testNotFoundError(): void
     {
-        $this->expectException(\MarkupAI\Exceptions\MarkupAiException::class);
+        $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage('Not Found');
 
         // Try to get a non-existent style guide
         $this->client->styleGuides()->get('non-existent-id');

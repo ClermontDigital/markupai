@@ -240,6 +240,26 @@ composer install
 composer require guzzlehttp/guzzle nyholm/psr7
 ```
 
+### Running Integration Tests
+
+Integration tests require a valid Markup.ai API token:
+
+```bash
+# Copy the example environment file
+cp .env.testing.example .env.testing
+
+# Edit .env.testing and add your API token
+# MARKUPAI_API_TOKEN=your_actual_token_here
+
+# Run all tests (integration tests will be skipped if no token is provided)
+composer test
+
+# Run only unit tests (no API token required)
+vendor/bin/phpunit tests/Unit/
+```
+
+**Security Note**: Never commit real API tokens to source control. Integration tests will automatically skip if no token is provided.
+
 ## License
 
 This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
