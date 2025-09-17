@@ -58,6 +58,20 @@ class Client
         return $this->sendRequest($request);
     }
 
+    public function postWithFile(string $path, array $data = [], ?string $filePath = null, array $allowedExtensions = []): array
+    {
+        if ($filePath !== null && !empty($allowedExtensions)) {
+            $this->validateFileType($filePath, $allowedExtensions);
+        }
+
+        $url = $this->buildUrl($path);
+        $request = $this->requestFactory->createRequest('POST', $url);
+        $request = $this->addFileUploadHeaders($request);
+        $request = $this->addMultipartBody($request, $data, $filePath);
+
+        return $this->sendRequest($request);
+    }
+
     public function patch(string $path, array $data = []): array
     {
         $url = $this->buildUrl($path);
@@ -97,6 +111,14 @@ class Client
             ->withHeader('User-Agent', 'MarkupAI-PHP-SDK/1.0.0');
     }
 
+    private function addFileUploadHeaders(RequestInterface $request): RequestInterface
+    {
+        return $request
+            ->withHeader('Authorization', $this->config->getAuthorizationHeader())
+            ->withHeader('Accept', 'application/json')
+            ->withHeader('User-Agent', 'MarkupAI-PHP-SDK/1.0.0');
+    }
+
     private function addJsonBody(RequestInterface $request, array $data): RequestInterface
     {
         if (empty($data)) {
@@ -106,6 +128,38 @@ class Client
         $json = json_encode($data, JSON_THROW_ON_ERROR);
         $stream = $this->streamFactory->createStream($json);
 
+        return $request->withBody($stream);
+    }
+
+    private function addMultipartBody(RequestInterface $request, array $data, ?string $filePath): RequestInterface
+    {
+        $boundary = uniqid('boundary_', true);
+        $request = $request->withHeader('Content-Type', 'multipart/form-data; boundary=' . $boundary);
+
+        $multipartData = '';
+
+        // Add regular form fields
+        foreach ($data as $key => $value) {
+            $multipartData .= "--{$boundary}\r\n";
+            $multipartData .= "Content-Disposition: form-data; name=\"{$key}\"\r\n\r\n";
+            $multipartData .= "{$value}\r\n";
+        }
+
+        // Add file upload if provided
+        if ($filePath !== null && file_exists($filePath)) {
+            $filename = basename($filePath);
+            $fileContent = file_get_contents($filePath);
+            $mimeType = mime_content_type($filePath) ?: 'application/octet-stream';
+
+            $multipartData .= "--{$boundary}\r\n";
+            $multipartData .= "Content-Disposition: form-data; name=\"file_upload\"; filename=\"{$filename}\"\r\n";
+            $multipartData .= "Content-Type: {$mimeType}\r\n\r\n";
+            $multipartData .= "{$fileContent}\r\n";
+        }
+
+        $multipartData .= "--{$boundary}--\r\n";
+
+        $stream = $this->streamFactory->createStream($multipartData);
         return $request->withBody($stream);
     }
 
@@ -166,5 +220,49 @@ class Client
             $statusCode >= 500 => throw new ServerException($message, $statusCode, null, $context),
             default => throw new MarkupAiException($message, $statusCode, null, $context),
         };
+    }
+
+    private function validateFileType(string $filePath, array $allowedExtensions): void
+    {
+        if (!file_exists($filePath)) {
+            throw new ValidationException("File not found: {$filePath}");
+        }
+
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        $normalizedAllowed = array_map('strtolower', $allowedExtensions);
+
+        if (!in_array($extension, $normalizedAllowed, true)) {
+            throw new ValidationException(
+                sprintf(
+                    'Invalid file type "%s". Allowed types: %s',
+                    $extension,
+                    implode(', ', $allowedExtensions)
+                )
+            );
+        }
+
+        // Check file size (15MB max as per docs)
+        $fileSize = filesize($filePath);
+        $maxSize = 15 * 1024 * 1024; // 15MB in bytes
+
+        if ($fileSize > $maxSize) {
+            throw new ValidationException(
+                sprintf(
+                    'File size %s exceeds maximum allowed size of 15MB',
+                    $this->formatBytes($fileSize)
+                )
+            );
+        }
+    }
+
+    private function formatBytes(int $bytes): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $i = 0;
+        while ($bytes >= 1024 && $i < count($units) - 1) {
+            $bytes /= 1024;
+            $i++;
+        }
+        return round($bytes, 2) . ' ' . $units[$i];
     }
 }

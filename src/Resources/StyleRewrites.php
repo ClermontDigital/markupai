@@ -23,6 +23,14 @@ class StyleRewrites
         return StyleRewrite::fromArray($response);
     }
 
+    public function createWithFile(array $data, string $filePath): StyleRewrite
+    {
+        // Style rewrites accept txt, pdf, and md files according to API documentation
+        $response = $this->httpClient->postWithFile('style-rewrites', $data, $filePath, ['txt', 'pdf', 'md']);
+
+        return StyleRewrite::fromArray($response);
+    }
+
     public function get(string $id): StyleRewrite
     {
         $response = $this->httpClient->get("style-rewrites/{$id}");

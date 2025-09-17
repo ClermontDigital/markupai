@@ -23,6 +23,14 @@ class StyleChecks
         return StyleCheck::fromArray($response);
     }
 
+    public function createWithFile(array $data, string $filePath): StyleCheck
+    {
+        // Style checks accept txt, pdf, and md files according to API documentation
+        $response = $this->httpClient->postWithFile('style-checks', $data, $filePath, ['txt', 'pdf', 'md']);
+
+        return StyleCheck::fromArray($response);
+    }
+
     public function get(string $id): StyleCheck
     {
         $response = $this->httpClient->get("style-checks/{$id}");

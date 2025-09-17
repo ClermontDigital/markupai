@@ -33,6 +33,14 @@ class StyleGuides
         return StyleGuide::fromArray($response);
     }
 
+    public function createWithFile(array $data, string $filePath): StyleGuide
+    {
+        // Style guides only accept PDF files according to API documentation
+        $response = $this->httpClient->postWithFile('style-guides', $data, $filePath, ['pdf']);
+
+        return StyleGuide::fromArray($response);
+    }
+
     public function get(string $id): StyleGuide
     {
         $response = $this->httpClient->get("style-guides/{$id}");

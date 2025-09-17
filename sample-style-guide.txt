@@ -1,0 +1,10 @@
+Sample Style Guide
+
+This is a sample style guide document for testing purposes.
+
+Key Guidelines:
+- Use clear, concise language
+- Write in active voice
+- Avoid unnecessary jargon
+- Keep sentences short and readable
+- Maintain consistent tone throughout

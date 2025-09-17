@@ -1,5 +1,7 @@
 # MarkupAI PHP SDK
 
+[![Latest Version](https://img.shields.io/packagist/v/markupai/php-sdk.svg?style=flat-square)](https://packagist.org/packages/markupai/php-sdk)
+
 A PHP SDK for integrating with the [Markup.ai](https://markup.ai) content governance platform. This library provides a clean, PSR-compliant interface for accessing Markup.ai's style checking, content validation, and automated rewriting capabilities.
 
 ## Installation

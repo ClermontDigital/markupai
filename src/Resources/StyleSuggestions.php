@@ -23,6 +23,14 @@ class StyleSuggestions
         return StyleSuggestion::fromArray($response);
     }
 
+    public function createWithFile(array $data, string $filePath): StyleSuggestion
+    {
+        // Style suggestions accept txt, pdf, and md files according to API documentation
+        $response = $this->httpClient->postWithFile('style-suggestions', $data, $filePath, ['txt', 'pdf', 'md']);
+
+        return StyleSuggestion::fromArray($response);
+    }
+
     public function get(string $id): StyleSuggestion
     {
         $response = $this->httpClient->get("style-suggestions/{$id}");
