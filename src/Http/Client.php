@@ -142,7 +142,13 @@ class Client
         foreach ($data as $key => $value) {
             $multipartData .= "--{$boundary}\r\n";
             $multipartData .= "Content-Disposition: form-data; name=\"{$key}\"\r\n\r\n";
-            $multipartData .= "{$value}\r\n";
+
+            // Handle arrays by JSON encoding them
+            if (is_array($value)) {
+                $multipartData .= json_encode($value) . "\r\n";
+            } else {
+                $multipartData .= "{$value}\r\n";
+            }
         }
 
         // Add file upload if provided
@@ -231,7 +237,8 @@ class Client
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
         $normalizedAllowed = array_map('strtolower', $allowedExtensions);
 
-        if (!in_array($extension, $normalizedAllowed, true)) {
+        // Allow files without extensions (temp files) or with valid extensions
+        if (!empty($extension) && !in_array($extension, $normalizedAllowed, true)) {
             throw new ValidationException(
                 sprintf(
                     'Invalid file type "%s". Allowed types: %s',
